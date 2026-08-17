@@ -1,0 +1,91 @@
+[build-system]
+requires = ["hatchling>=1.32"]
+build-backend = "hatchling.build"
+
+[project]
+name = "missiva"
+version = "0.1.0-alpha.1"
+description = "Hexagonal MQTT library: a broker session with publish, subscribe, listen, and request."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+authors = [
+    { name = "TAPMI - EAFIT" },
+]
+keywords = [
+    "mqtt",
+    "iot",
+    "asyncio",
+    "pubsub",
+    "request-reply",
+    "duplex",
+    "hexagonal",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+    "Typing :: Typed",
+    "Framework :: AsyncIO",
+    "Topic :: Communications",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "aiomqtt>=2.5.1",
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.15.0",
+]
+
+[project.urls]
+Repository = "https://github.com/TAPMI-EAFIT/missiva"
+Issues = "https://github.com/TAPMI-EAFIT/missiva/issues"
+
+[dependency-groups]
+dev = [
+    "mypy>=2.3.1",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.16.3",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/missiva"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.plan",
+    "/.git",
+    "/tests",
+    "/examples",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py312"
+src = ["src", "tests", "examples"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+explicit_package_bases = true
+files = ["src", "tests"]
+plugins = ["pydantic.mypy"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
