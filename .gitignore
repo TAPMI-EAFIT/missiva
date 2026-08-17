@@ -150,6 +150,7 @@ activemq-data/
 # Environments
 .env
 .envrc
+#!examples/.env
 .venv
 env/
 venv/
@@ -216,3 +217,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local planning notes (not part of the package)
+.plan/
+
+# Mac OS
+.DS_Store
+
+# VSCode
+.vscode/
