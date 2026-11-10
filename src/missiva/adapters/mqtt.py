@@ -49,6 +49,10 @@ class AioMqttBroker:
             "hostname": self._session.host,
             "port": self._session.port,
             "protocol": aiomqtt.ProtocolVersion.V311,
+            "keepalive": 0
+            if self._session.keepalive is None
+            else self._session.keepalive,
+            "clean_session": self._session.clean_session,
         }
         if self._session.client_id is not None:
             kwargs["identifier"] = self._session.client_id

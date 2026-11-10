@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from pydantic import SecretStr
+from pydantic import SecretStr, ValidationError
 
 from missiva import Missiva, Payload, Topic
 from missiva.domain import exceptions as domain_exceptions
@@ -63,6 +63,11 @@ def test_missiva_reads_broker_fields_from_env_file(tmp_path: Path) -> None:
 
 def test_missiva_does_not_include_qos() -> None:
     assert "qos" not in Missiva.model_fields
+
+
+def test_a_persistent_session_requires_a_client_id() -> None:
+    with pytest.raises(ValidationError, match="client_id"):
+        Missiva(host="mqtt.local", clean_session=False)
 
 
 def test_missiva_takes_broker_fields_directly() -> None:

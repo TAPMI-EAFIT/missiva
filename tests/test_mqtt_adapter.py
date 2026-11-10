@@ -64,6 +64,34 @@ def _reset_fake_client() -> None:
     _FakeClient.fail_times = 0
 
 
+async def test_a_new_session_does_not_ping_unless_asked(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("missiva.adapters.mqtt.aiomqtt.Client", _FakeClient)
+    broker = _adapter(host="mqtt.local", client_id="missiva-1")
+    await broker.connect()
+    kwargs = _FakeClient.instances[0].kwargs
+    assert kwargs["keepalive"] == 0
+    assert kwargs["clean_session"] is True
+    await broker.disconnect()
+
+
+async def test_keepalive_is_the_ping_interval(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("missiva.adapters.mqtt.aiomqtt.Client", _FakeClient)
+    broker = _adapter(host="mqtt.local", client_id="missiva-1", keepalive=15)
+    await broker.connect()
+    assert _FakeClient.instances[0].kwargs["keepalive"] == 15
+    await broker.disconnect()
+
+
+async def test_a_persistent_session_is_opt_in(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("missiva.adapters.mqtt.aiomqtt.Client", _FakeClient)
+    broker = _adapter(host="mqtt.local", client_id="missiva-1", clean_session=False)
+    await broker.connect()
+    assert _FakeClient.instances[0].kwargs["clean_session"] is False
+    await broker.disconnect()
+
+
 async def test_connect_uses_single_session(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("missiva.adapters.mqtt.aiomqtt.Client", _FakeClient)
     broker = _adapter(host="mqtt.local", client_id="missiva-1")
