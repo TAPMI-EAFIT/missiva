@@ -5,7 +5,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Self, cast
 
-from pydantic import Field, PrivateAttr, SecretStr
+from pydantic import Field, PrivateAttr, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from missiva.adapters.mqtt import AioMqttBroker
@@ -35,12 +35,21 @@ class Missiva(BaseSettings):
     username: str | None = None
     password: SecretStr | None = None
     client_id: str | None = None
+    keepalive: int | None = Field(default=None, ge=1, le=65535)
+    clean_session: bool = True
     reconnect_max_attempts: int = Field(default=10, ge=1)
     reconnect_delay_seconds: float = Field(default=5.0, ge=0)
 
     _broker: BrokerPort = PrivateAttr()
     _connected: bool = PrivateAttr(default=False)
     _in_context: bool = PrivateAttr(default=False)
+
+    @model_validator(mode="after")
+    def persistent_session_needs_a_client_id(self) -> Self:
+        """A persistent session is stored on the broker under ``client_id``."""
+        if not self.clean_session and not self.client_id:
+            raise ValueError("A persistent session requires client_id.")
+        return self
 
     def model_post_init(self, context: object) -> None:
         """Wire the MQTT adapter after settings are loaded. Unused ``context`` is Pydantic's."""

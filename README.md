@@ -134,7 +134,9 @@ Reconnect uses a **single** MQTT session per attempt. Protocol is MQTT 3.1.1.
 
 `Missiva` takes broker settings in the constructor. Keyword arguments win; omitted fields come from the environment (`MISSIVA_BROKER_*`) or `_env_file`.
 
-Fields: `host`, `port=1883`, `username`, `password: SecretStr | None`, `client_id`, `reconnect_max_attempts=10`, `reconnect_delay_seconds=5.0`. The password is never logged. QoS and retain are arguments on `publish` / `subscribe` / `listen` / `request`, not on the session. Two live connections must not share `client_id`: MQTT 3.1.1 disconnects the older one. Omit it to generate a unique id.
+Fields: `host`, `port=1883`, `username`, `password: SecretStr | None`, `client_id`, `keepalive`, `clean_session=True`, `reconnect_max_attempts=10`, `reconnect_delay_seconds=5.0`. The password is never logged. QoS and retain are arguments on `publish` / `subscribe` / `listen` / `request`, not on the session. Two live connections must not share `client_id`: MQTT 3.1.1 disconnects the older one. Omit it to generate a unique id.
+
+`keepalive` is optional. Omit it and the client sends no ping. Set it to the number of seconds between pings on a quiet connection. `clean_session=True` tells the broker to forget this client on disconnect. `clean_session=False` keeps the subscription and any queued QoS 1 messages for `client_id` until that same id reconnects, so it requires `client_id`.
 
 | Field | Environment variable |
 |------|----------------------|
@@ -143,6 +145,8 @@ Fields: `host`, `port=1883`, `username`, `password: SecretStr | None`, `client_i
 | `username` | `MISSIVA_BROKER_USERNAME` |
 | `password` | `MISSIVA_BROKER_PASSWORD` |
 | `client_id` | `MISSIVA_BROKER_CLIENT_ID` |
+| `keepalive` | `MISSIVA_BROKER_KEEPALIVE` |
+| `clean_session` | `MISSIVA_BROKER_CLEAN_SESSION` |
 | `reconnect_max_attempts` | `MISSIVA_BROKER_RECONNECT_MAX_ATTEMPTS` |
 | `reconnect_delay_seconds` | `MISSIVA_BROKER_RECONNECT_DELAY_SECONDS` |
 
